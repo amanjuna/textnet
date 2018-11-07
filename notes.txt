@@ -1,0 +1,14 @@
+notes.txt
+
+what is style?
+- the words you use, and how you use them
+- content + connectivity = style
+
+baseline approach:
+    bag of words, connect words that have a certain cosine similarity
+
+style comparison between style vectors:
+- augment with Jaccard similarity
+- dimensionality reduction, look for clustering
+
+compare graph2vec and style graph?
