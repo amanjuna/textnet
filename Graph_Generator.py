@@ -1,21 +1,19 @@
 """
 Graph_Generator.py
 
-Template class specifying generic functions for Graph_generator
+Template class specifying generic functions for GraphGenerator
 Class
 
 """
 
 import numpy as np
-import os, pickle
+import os, pickle, nltk
 
 EMBEDDINGS = "./embeddings/glove.6B.300d.txt"
 EMBEDDING_DIMS = (400000, 300)
 
 class GraphGenerator:
     def __init__(self, txt_file, load_emb=False):
-        self.txt_file = txt_file
-
         emb_exists = os.path.isfile("./embeddings/emb.pickle")
         if load_emb or not emb_exists:
             print("Loading embeddings from scratch - will take a moment")
@@ -24,6 +22,21 @@ class GraphGenerator:
         emb_data = pickle.load(open("./embeddings/emb.pickle", 'rb'))
         print("Embeddings loaded")
         self.word2id_dict, self.id2word_dict, self.emb = emb_data
+        self.tokens = self.tokenize(txt_file)
+
+    def generate_graph(self):
+        print("Needs to be called on a child of the GraphGenerator Class")
+        pass
+
+    def tokenize(self, txt_file):
+        tokens = []
+        with open(txt_file, 'r') as open_doc:
+            for line in open_doc:
+                for token in nltk.word_tokenize(line):
+                    lower = token.lower()
+                    if lower in self.word2id_dict:
+                        tokens += [lower]
+        return tokens
 
     def word2id(self, word):
         return self.word2id_dict[word]
