@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from Graph_Generator import GraphGenerator
+from GraphGenerator import GraphGenerator
 import networkx as nx
 import numpy as np
 import scipy.spatial as ss
