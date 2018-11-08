@@ -12,7 +12,7 @@ import os, pickle, nltk
 
 class GraphGenerator:
     def __init__(self, txt_file, emb, word2id, id2word):
-        self.emb, self.word2id_id, self.id2word_id = emb, word2id, id2word
+        self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
         self.tokens = self.tokenize(txt_file)
 
     def generate_graph(self):
@@ -36,6 +36,6 @@ class GraphGenerator:
         return self.id2word_dict[id]
 
 if __name__=="__main__":
-    emb, load_embeddings()
-    gg = GraphGenerator("gita.txt")
+    emb, word2id_dict, id2word_dict  = load_embeddings()
+    gg = GraphGenerator("gita.txt", emb, word2id_dict, id2word_dict)
     #gg.load_embeddings()

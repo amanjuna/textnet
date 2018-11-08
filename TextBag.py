@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from GraphGenerator import GraphGenerator
+from utils import *
 import networkx as nx
 import numpy as np
 import scipy.spatial as ss
@@ -27,5 +28,6 @@ class TextBag(GraphGenerator):
 
 
 if __name__=="__main__":
-    bag = TextBag("gita.txt")
+    emb, word2id_dict, id2word_dict  = load_embeddings()
+    bag = TextBag("gita.txt", emb, word2id_dict, id2word_dict)
     bag.generate_graph()
