@@ -11,9 +11,9 @@ PERCENTILE_THRESHOLD = 75
 class TextBag(GraphGenerator):
     def generate_graph(self):
         node_names = list(set(self.tokens))
+        if "UNK" in node_names: node_names.remove("UNK")
         node_ids = np.array([self.word2id(name) for name in node_names])
         embs = self.emb[node_ids,:]
-        print(embs.shape)
         d = embs.dot(embs.T)
         l2 = (embs.T*embs.T).sum(0, keepdims=True)**0.5
         dist_matrix = d/l2/l2.T
@@ -25,9 +25,10 @@ class TextBag(GraphGenerator):
                 node_j = node_names[j]
                 if dist_matrix[i,j] > threshold:
                     G.add_edge(node_i, node_j, weight=dist_matrix[i,j])
-
+        G.remove_nodes_from(list(nx.isolates(G)))
+        return G
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
     bag = TextBag("gita.txt", emb, word2id_dict, id2word_dict)
-    bag.generate_graph()
+    G = bag.generate_graph()

@@ -27,6 +27,8 @@ class GraphGenerator:
                     lower = token.lower()
                     if lower in self.word2id_dict:
                         tokens += [lower]
+                    else:
+                        tokens += ["UNK"]
         return tokens
 
     def word2id(self, word):
