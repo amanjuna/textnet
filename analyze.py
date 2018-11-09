@@ -23,7 +23,7 @@ def gen_style_vec(graph, n_samples=100):
     '''
     Given StyleGraph, return a style vector
     '''
-    n_samples = nx.number_of_nodes(G) if nx.number_of_nodes(G) > n_samples else n_samples
+    n_samples = nx.number_of_nodes(graph) if nx.number_of_nodes(graph) > n_samples else n_samples
 
     #cf = nx.average_clustering(graph)
     random_sample = random.sample(graph.nodes(), n_samples)
