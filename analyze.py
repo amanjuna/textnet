@@ -10,22 +10,29 @@ Things in the style vector:
 - avg graph width
 - rolX vector
 - avg degree
-- what else?
+- what else
 '''
 import networkx as nx
 import numpy as np
+import random
 from utils import *
 from TextBag import TextBag as GraphGenerator
 
 
-def gen_style_vec(graph):
+def gen_style_vec(graph, n_samples=100):
     '''
     Given StyleGraph, return a style vector
     '''
+    n_samples = nx.number_of_nodes(G) if nx.number_of_nodes(G) > n_samples else n_samples
+
     #cf = nx.average_clustering(graph)
-    degree = np.mean([x[1] for x in graph.degree(graph.nodes())])#nx.average_degree_connectivity(graph)
-    transitivity = nx.transitivity(graph)
-    avg_cluster = nx.average_clustering(graph)
+    random_sample = random.sample(graph.nodes(), n_samples)
+    degree = np.mean([x[1] for x in graph.degree(random_sample)]) #nx.average_degree_connectivity(graph)
+    transitivity = 0
+    #transitivity = nx.transitivity(graph)
+    print("cluster began")
+    avg_cluster = nx.average_clustering(graph, random_sample)
+    print("cluster end")
     #print(list(nx.isolates(graph)), graph.nodes, graph.edges)
     #mxscc = max(nx.strongly_connected_components(graph), key=len)
     #mxwcc = max(nx.weakly_connected_components(graph), key=len)

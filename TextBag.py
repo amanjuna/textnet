@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+#from StyleGraph import StyleGraph
 from GraphGenerator import GraphGenerator
 from utils import *
 import networkx as nx

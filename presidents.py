@@ -17,5 +17,6 @@ def main():
             G = bag.generate_graph()
             vec += gen_style_vec(G)
         print(president, vec/len(text_files))
+
 if __name__=="__main__":
     main()
