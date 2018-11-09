@@ -34,13 +34,13 @@ def gen_style_vec(graph, n_samples=100):
     print("cluster began")
     avg_cluster = nx.average_clustering(graph, random_sample)
     print("cluster end")
-    node2vec = Node2Vec(graph, workers=4, sampling_strategy='q')
+    node2vec = Node2Vec(graph, workers=4)
     model = node2vec.fit(window=10, min_count=1, batch_words=4)
     average_vec = 0
     for node in graph.nodes():
         average_vec += model.wv.get_vector(node)
     average_vec /= n_nodes
-    print(average)
+    print(average_vec)
     #print(list(nx.isolates(graph)), graph.nodes, graph.edges)
     #mxscc = max(nx.strongly_connected_components(graph), key=len)
     #mxwcc = max(nx.weakly_connected_components(graph), key=len)
@@ -50,7 +50,7 @@ def gen_style_vec(graph, n_samples=100):
     #print(nx.is_connected(graph))
     #triads = nx.triadic_census(graph)
     #print(triads)
-    return np.array([degree, avg_cluster] + average_vec)
+    return np.concatenate((np.array([degree, avg_cluster]), average_vec))
 
 
 if __name__=="__main__":
