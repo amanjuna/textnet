@@ -16,8 +16,8 @@ import networkx as nx
 import numpy as np
 import random
 from utils import *
-from TextBag import TextBag as GraphGenerator
 from node2vec import Node2Vec
+from TextBag import TextBag as GraphGenerator
 
 def gen_style_vec(graph, n_samples=100):
     '''
@@ -36,21 +36,22 @@ def gen_style_vec(graph, n_samples=100):
     print("cluster end")
     node2vec = Node2Vec(graph, workers=4)
     model = node2vec.fit(window=10, min_count=1, batch_words=4)
-    average_vec = 0
-    for node in graph.nodes():
-        average_vec += model.wv.get_vector(node)
-    average_vec /= n_nodes
-    print(average_vec)
+    #average_vec = 0
+    #for node in graph.nodes():
+    #    average_vec += model.wv.get_vector(node)
+    #average_vec /= n_nodes
+    #print(average_vec)
     #print(list(nx.isolates(graph)), graph.nodes, graph.edges)
     #mxscc = max(nx.strongly_connected_components(graph), key=len)
     #mxwcc = max(nx.weakly_connected_components(graph), key=len)
     #shortest_path = nx.average_shortest_path_length(mxscc)
+    analysis_vec = model.wv.get_vector(graph.nodes['ANALYSIS_NODE'])
 
     #radius = nx.radius(mxwcc)
     #print(nx.is_connected(graph))
     #triads = nx.triadic_census(graph)
     #print(triads)
-    return np.concatenate((np.array([degree, avg_cluster]), average_vec))
+    return np.concatenate((np.array([degree, avg_cluster]), analysis_vec))
 
 
 if __name__=="__main__":
