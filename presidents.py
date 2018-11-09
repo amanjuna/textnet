@@ -9,6 +9,7 @@ N_CORES = 4
 def vectorize(path):
     bag = GraphGenerator(path, emb, word2id_dict, id2word_dict)
     G = bag.generate_graph()
+    G = bag.create_analysis_node(G)
     if nx.number_of_nodes(G) <= 400:
         return gen_style_vec(G)
     else:
