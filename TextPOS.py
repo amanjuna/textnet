@@ -10,20 +10,20 @@ import scipy.spatial as ss
 class TextPOS(GraphGenerator):
     def generate_graph(self):
         tagged = nltk.pos_tag(self.tokens)
+        print(tagged)
         relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
-	determiner = set(['WDT', 'DT', 'PDT'])
-        names_list = [word[0] for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship)]  #Discard determiners/connectors
+        determiner = set(['WDT', 'DT', 'PDT'])
+        names_list = [word for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship)]  #Discard determiners/connectors
         node_names = set(names_list)
-	G = nx.Graph()
+        G = nx.Graph()
         print(names_list)
-	print(tagged)
-	for node in node_names: G.add_node(node)
-
+        print(tagged)
+        for node in node_names: G.add_node(node)
         start_node = None
         start_sentence = True
-        for word_i in tagged[1:]:
+        for word_i in tagged:
             if start_sentence:
-                if word_i[0] in node_names:
+                if word_i in node_names:
                     start_node = word_i
                     start_sentence = False
                     continue
@@ -34,7 +34,7 @@ class TextPOS(GraphGenerator):
             if word_i[1] == '.':
                 start_sentence = True
                 continue
-            G.add_edge(start_node[0], word_i[0])
+            G.add_edge(start_node, word_i)
             start_node  = word_i
         return G
 

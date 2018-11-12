@@ -27,7 +27,7 @@ def gen_style_vec(graph, n_samples=100):
     if n_nodes < n_samples:
         n_samples = n_nodes
     nx.draw_networkx(graph)
-    plt.show(graph)
+    plt.savefig("okay3.png")
     return 
 	  #cf = nx.average_clustering(graph)
     random_sample = random.sample(graph.nodes(), n_samples)
@@ -52,10 +52,10 @@ def gen_style_vec(graph, n_samples=100):
 
     #radius = nx.radius(mxwcc)
     #print(nx.is_connected(graph))
-    #triads = nx.triadic_census(graph)
+    triads = nx.triadic_census(graph)
     #print(triads)
 
-    return np.concatenate((np.array([degree, avg_cluster]), analysis_vec))
+    return np.concatenate((np.array([degree, avg_cluster] + triads), analysis_vec))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
