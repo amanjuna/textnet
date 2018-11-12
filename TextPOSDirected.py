@@ -7,34 +7,38 @@ import networkx as nx
 import numpy as np
 import scipy.spatial as ss
 
-class TextPOS(GraphGenerator):
+class TextPOSDirected(GraphGenerator):
     def generate_graph(self):
         tagged = nltk.pos_tag(self.tokens)
-        relationship = set(['VERB', 'CONJ', 'ADP']) #ADP is 'adposition'
-        node_names = set([word for word in tagged if (word[1] != 'DET' and word[1] != '.' and word[1] not in relationship)])  #Discard determiners/connectors
+        print(tagged)
+        relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
+        determiner = set(['WDT', 'DT', 'PDT'])
+        names_list = [word for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship)]  #Discard determiners/connectors
+        node_names = set(names_list)
         G = nx.DiGraph()
+        #print(names_list)
+        #print(tagged)
         for node in node_names: G.add_node(node)
-
-        start_node = tagged[0]
-        start_sentence = False
-        for word_i in tagged[1:]:
+        start_node = None
+        start_sentence = True
+        for word_i in tagged:
             if start_sentence:
-                if word_i[0] in node_names:
+                if word_i in node_names:
                     start_node = word_i
                     start_sentence = False
                     continue
                 else:
                     continue
-            if word_i[1] in relationship or word_i[1] == 'DET':
+            if word_i[1] in relationship or word_i[1] in determiner:
                 continue
             if word_i[1] == '.':
                 start_sentence = True
                 continue
             G.add_edge(start_node, word_i)
-            start_node = word_i
+            start_node  = word_i
         return G
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
-    bag = TextBag("gita.txt", emb, word2id_dict, id2word_dict)
-    bag.generate_graph()
+    directed = TextPOSDirected("gita.txt", emb, word2id_dict, id2word_dict)
+    directed.generate_graph()

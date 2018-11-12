@@ -16,8 +16,8 @@ class TextPOS(GraphGenerator):
         names_list = [word for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship)]  #Discard determiners/connectors
         node_names = set(names_list)
         G = nx.Graph()
-        print(names_list)
-        print(tagged)
+        #print(names_list)
+        #print(tagged)
         for node in node_names: G.add_node(node)
         start_node = None
         start_sentence = True
@@ -40,5 +40,5 @@ class TextPOS(GraphGenerator):
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
-    bag = TextBag("gita.txt", emb, word2id_dict, id2word_dict)
-    bag.generate_graph()
+    pos = TextPOS("gita.txt", emb, word2id_dict, id2word_dict)
+    pos.generate_graph()
