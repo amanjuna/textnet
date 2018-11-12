@@ -6,22 +6,23 @@ from utils import *
 import networkx as nx
 import numpy as np
 import scipy.spatial as ss
+import itertools
 
-class TextWindow(GraphGenerator):
+class TextSharedSentence(GraphGenerator):
     def generate_graph(self):
         node_names = list(set(self.tokens))
         if "UNK" in node_names: node_names.remove("UNK")
         G = nx.Graph()
         for node in node_names: G.add_node(node)
+        sentences = np.split(self.tokens, np.where(self.tokens = '.'))
 
-        for i in range(len(self.tokens) - 1)
-            start = self.tokens[i]
-            end = self.tokens[i + 1]
-            if start == '.' or end == '.': continue
-            G.add_edge(start, end)
+        for s in sentences:
+            pairs = itertools.combinations(s)
+            G.add_edges_from(pairs)
+
         return G
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
-    window = TextWindow("gita.txt", emb, word2id_dict, id2word_dict)
-    G = window.generate_graph()
+    bag = TextBag("gita.txt", emb, word2id_dict, id2word_dict)
+    G = bag.generate_graph()
