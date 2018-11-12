@@ -9,6 +9,7 @@ Class
 from utils import *
 import numpy as np
 import os, pickle, nltk
+import networkx as nx
 
 class GraphGenerator:
     def __init__(self, txt_file, emb, word2id, id2word):
@@ -30,6 +31,13 @@ class GraphGenerator:
                     else:
                         tokens += ["UNK"]
         return tokens
+
+    def create_analysis_node(self, G):
+        G.add_node("ANALYSIS_NODE")
+        for n in G.nodes:
+            G.add_edge("ANALYSIS_NODE", n)
+        return G
+
 
     def word2id(self, word):
         return self.word2id_dict[word]
