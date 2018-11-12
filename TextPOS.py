@@ -10,7 +10,6 @@ import scipy.spatial as ss
 class TextPOS(GraphGenerator):
     def generate_graph(self):
         tagged = nltk.pos_tag(self.tokens)
-        print(tagged)
         relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
         determiner = set(['WDT', 'DT', 'PDT'])
         names_list = [word for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship)]  #Discard determiners/connectors
