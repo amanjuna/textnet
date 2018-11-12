@@ -19,7 +19,7 @@ class TextPOS(GraphGenerator):
         start_sentence = False
         for word_i in tagged[1:]:
             if start_sentence:
-                if word_i[1] not in relationship and word_i[1] != 'DET' and word_i[1] != '.':
+                if word_i[0] in node_names:
                     start_node = word_i
                     start_sentence = False
                     continue

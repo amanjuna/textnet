@@ -17,9 +17,9 @@ class TextPOS(GraphGenerator):
 
         start_node = tagged[0]
         start_sentence = False
-        for i, word_i in enumerate(tagged):
+        for word_i in tagged[1:]:
             if start_sentence:
-                if word_i[1] not in relationship and word_i[1] != 'DET' and word_i[1] != '.':
+                if word_i[0] in node_names:
                     start_node = word_i
                     start_sentence = False
                     continue
@@ -31,6 +31,7 @@ class TextPOS(GraphGenerator):
                 start_sentence = True
                 continue
             G.add_edge(start_node, word_i)
+            start_node = word_i
         return G
 
 if __name__=="__main__":
