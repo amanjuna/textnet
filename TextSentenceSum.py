@@ -7,7 +7,7 @@ import networkx as nx
 import numpy as np
 import scipy.spatial as ss
 
-class TextWindow(GraphGenerator):
+class TextSentenceSum(GraphGenerator):
     def generate_graph(self):
         node_names = list(set(self.tokens))
         if "UNK" in node_names: node_names.remove("UNK")
