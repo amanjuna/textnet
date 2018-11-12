@@ -14,7 +14,7 @@ class TextWindow(GraphGenerator):
         G = nx.Graph()
         for node in node_names: G.add_node(node)
 
-        for i in range(len(self.tokens) - 1)
+        for i in range(len(self.tokens) - 1):
             start = self.tokens[i]
             end = self.tokens[i + 1]
             if start == '.' or end == '.': continue

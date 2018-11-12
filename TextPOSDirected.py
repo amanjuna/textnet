@@ -11,7 +11,7 @@ class TextPOS(GraphGenerator):
     def generate_graph(self):
         tagged = nltk.pos_tag(self.tokens)
         relationship = set(['VERB', 'CONJ', 'ADP']) #ADP is 'adposition'
-        node_names = set([word[0] for word in tagged if (word[1] != 'DET' and word[1] != '.' and word[1] not in relationship)])  #Discard determiners/connectors
+        node_names = set([word for word in tagged if (word[1] != 'DET' and word[1] != '.' and word[1] not in relationship)])  #Discard determiners/connectors
         G = nx.DiGraph()
         for node in node_names: G.add_node(node)
 
@@ -30,7 +30,7 @@ class TextPOS(GraphGenerator):
             if word_i[1] == '.':
                 start_sentence = True
                 continue
-            G.add_edge(start_node[0], word_i[0])
+            G.add_edge(start_node, word_i)
         return G
 
 if __name__=="__main__":
