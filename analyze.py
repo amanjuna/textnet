@@ -27,7 +27,7 @@ def gen_style_vec(graph, n_samples=100):
     if n_nodes < n_samples:
         n_samples = n_nodes
     nx.draw_networkx(graph, with_labels=False)
-    plt.savefig("okay4.png")
+    plt.savefig("okay5.png")
 	  #cf = nx.average_clustering(graph)
     random_sample = random.sample(graph.nodes(), n_samples)
     degree = np.mean([x[1] for x in graph.degree(random_sample)]) #nx.average_degree_connectivity(graph)
@@ -36,14 +36,14 @@ def gen_style_vec(graph, n_samples=100):
     avg_cluster = nx.average_clustering(graph, random_sample)
     print("cluster end")
 
-    triads = nx.triadic_census(graph)
-    triads = [(key, value) for key, value in triads.items()]
-    triads.sort(key=lambda x: x[0])
-    triads = [x[1] for x in triads]
-    graph = graph.to_undirected()
+    #triads = nx.triadic_census(graph)
+    #triads = [(key, value) for key, value in triads.items()]
+    #triads.sort(key=lambda x: x[0])
+    #triads = [x[1] for x in triads]
+    #graph = graph.to_undirected()
     graph = create_analysis_node(graph)
     node2vec = Node2Vec(graph, workers=4)
-    model = node2vec.fit(window=10, min_count=1, batch_words=4)
+    model = node2vec.fit()
     #average_vec = 0
     #for node in graph.nodes():
     #    average_vec += model.wv.get_vector(node)
@@ -54,13 +54,13 @@ def gen_style_vec(graph, n_samples=100):
     #mxwcc = max(nx.weakly_connected_components(graph), key=len)
     #shortest_path = nx.average_shortest_path_length(mxscc)
     analysis_vec = model.wv.get_vector('ANALYSIS_NODE')
-    print(np.array([degree, avg_cluster] + triads))
+    #print(np.array([degree, avg_cluster] + triads))
     #radius = nx.radius(mxwcc)
     #print(nx.is_connected(graph))
     #triads = nx.triadic_census(graph)
     #print(triads)
 
-    return np.concatenate((np.array([degree, avg_cluster] + triads), analysis_vec))
+    return np.concatenate((np.array([degree, avg_cluster]), analysis_vec))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
