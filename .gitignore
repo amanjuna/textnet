@@ -3,3 +3,5 @@ embeddings
 data
 *.pyc
 *.ipynb
+__pycache__/
+.ipynb_checkpoints
