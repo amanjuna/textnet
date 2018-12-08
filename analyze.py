@@ -17,9 +17,9 @@ import numpy as np
 import random
 from utils import *
 from node2vec import Node2Vec
-from TextPOSDirected import TextPOSDirected as GraphGenerator
+from TextPOS import TextPOS as GraphGenerator
 import matplotlib.pyplot as plt
-def gen_style_vec(graph, n_samples=100):
+def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
     '''
     Given StyleGraph, return a style vector
     '''
@@ -41,8 +41,13 @@ def gen_style_vec(graph, n_samples=100):
     #triads.sort(key=lambda x: x[0])
     #triads = [x[1] for x in triads]
     #graph = graph.to_undirected()
+
+    central_node = sorted(list(nx.harmonic_centrality(graph).items()), key=lambda x:x[1])[-10:-1]
+    central_emb = np.mean(emb[[word2id_dict[x[0][0]] for x in central_node]], axis=0)
+    print(central_node, central_emb.shape)
+    central_emb[central_emb == np.inf] = 0
     graph = create_analysis_node(graph)
-    node2vec = Node2Vec(graph, workers=4)
+    node2vec = Node2Vec(graph, p=0.01, q=100, workers=4)
     model = node2vec.fit()
     #average_vec = 0
     #for node in graph.nodes():
@@ -59,8 +64,9 @@ def gen_style_vec(graph, n_samples=100):
     #print(nx.is_connected(graph))
     #triads = nx.triadic_census(graph)
     #print(triads)
-
-    return np.concatenate((np.array([degree, avg_cluster]), analysis_vec))
+    #print(np.sum(np.concatenate((np.array([degree, avg_cluster]), analysis_vec, central_emb))))
+    #print(np.concatenate((np.array([degree, avg_cluster]), analysis_vec)))
+    return np.concatenate((np.array([degree, avg_cluster]), analysis_vec, central_emb))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
@@ -73,4 +79,4 @@ if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
     bag = GraphGenerator("test.txt", emb, word2id_dict, id2word_dict)
     G = bag.generate_graph()
-    print(gen_style_vec(G))
+    print(gen_style_vec(G, word2id_dict, emb))
