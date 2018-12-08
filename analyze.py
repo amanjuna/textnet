@@ -25,28 +25,38 @@ def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
     Given StyleGraph, return a style vector
     '''
     # Graph stats
-    n_nodes = nx.number_of_nodes(graph)
-    if n_nodes < n_samples:
-        n_samples = n_nodes
-    nx.draw_networkx(graph, with_labels=False)
-    random_sample = random.sample(graph.nodes(), n_samples)
-    avg_degree = np.mean([x[1] for x in graph.degree(random_sample)])
-    avg_cluster = nx.average_clustering(graph, random_sample)
-    graph_stats = np.array([avg_degree, avg_cluster])
+    def get_graph_stats():
+        n_nodes = nx.number_of_nodes(graph)
+        if n_nodes < n_samples:
+            n_samples = n_nodes
+        random_sample = random.sample(graph.nodes(), n_samples)
+        avg_degree = np.mean([x[1] for x in graph.degree(random_sample)])
+        avg_cluster = nx.average_clustering(graph, random_sample)
+        graph_stats = np.array([avg_degree, avg_cluster])
 
     # Centrality
-    centrality = nx.eigenvector_centrality_numpy(graph)
-    sorted_centrality = sorted(centrality.items(), key=lambda x:x[1], reverse=True)
-    top_5_id = [word2id_dict[x[0][0]] for x in sorted_centrality[0:5]]
-    centrality = np.mean(emb[top_5_id, :], axis=0)
+    def get_centrality(graph):
+        centrality = nx.eigenvector_centrality_numpy(graph)
+        sorted_centrality = sorted(centrality.items(), key=lambda x:x[1], reverse=True)
+        top_5_id = [word2id_dict[x[0][0]] for x in sorted_centrality[0:5]]
+        centrality = np.mean(emb[top_5_id, :], axis=0)
+        print([x[0][0] for x in sorted_centrality[0:5]])
+        return centrality
 
     # Node2Vec
-    graph = create_analysis_node(graph)
-    node2vec = Node2Vec(graph, workers=4, quiet=True)
-    model = node2vec.fit()
-    node2vec = model.wv.get_vector('ANALYSIS_NODE')
+    def get_node2vec(graph):
+        graph = create_analysis_node(graph)
+        node2vec = Node2Vec(graph, workers=1, quiet=True)
+        model = node2vec.fit()
+        node2vec = model.wv.get_vector('ANALYSIS_NODE')
+        return node2vec
 
-    return np.concatenate((graph_stats, centrality, node2vec))
+    print(graph.nodes)
+    #graph_stats = get_graph_stats()
+    centrality = get_centrality(graph)
+    node2vec = get_node2vec(graph)
+
+    return np.concatenate((centrality, node2vec))#, node2vec))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
