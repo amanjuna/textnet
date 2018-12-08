@@ -15,7 +15,7 @@ import nltk
 from utils import *
 from GraphGenerator import GraphGenerator
 
-class ChainGraph(GraphGenerator):
+class ChainGraphSimple(GraphGenerator):
     def __init__(self, txt_file, emb, word2id, id2word, is_file=True):
         self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
         self.tokens = self.tokenize(txt_file, is_file)
@@ -81,7 +81,6 @@ class ChainGraph(GraphGenerator):
                     n_unk += 1
         print("Unk percentage:", n_unk/n_word)
         return tokens
-
 
     def word2id(self, word):
         return self.word2id_dict[word]
