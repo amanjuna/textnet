@@ -1,6 +1,7 @@
 embeddings
 ._*
 data
-__pycache__/
 *.pyc
+*.ipynb
+__pycache__/
 .ipynb_checkpoints
