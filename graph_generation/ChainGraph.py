@@ -1,9 +1,7 @@
 """
 Graph_Generator.py
-
 Template class specifying generic functions for GraphGenerator
 Class
-
 """
 
 from utils import *
@@ -16,8 +14,40 @@ class GraphGenerator:
         self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
         self.tokens = self.tokenize(txt_file, is_file)
 
+
     def generate_graph(self):
-        raise NotImplementedError("generate_graph() must be implemented by a child class of GraphGenerator")
+        tagged = nltk.pos_tag(self.tokens)
+        break_inds = [i for i, word in tagged if word[0] in ['.','!','?']]
+        G = nx.DiGraph()
+        start_ind = 0
+        for i, ind in enumerate(break_inds):
+            self.connect_sentence(tagged[start_ind:ind], G, i)
+            start_ind = ind + 1
+            if i > 0:
+                prev_meta = 'metanode_{}'.format(i-1)
+                cur_meta = 'metanode_{}'.format(i)
+                G.add_edge(prev_meta, cur_meta)
+
+        return G
+
+
+    def connect_sentence(self, sentence, G, sent_num):
+        relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
+        determiner = set(['WDT', 'DT', 'PDT'])
+        names = set(word[0] + "_{}".format(sent_num) for word in sentence \
+                    if word not in relationship and word not in determiner)
+        for name in names: G.add_node(name)
+        src_node = sentence[0]
+        meta_node = "metanode_{}".format(sent_num) # Connects to all other words in sentence
+        G.add_node(meta_node)
+        for word_i in sentence[1:]:
+            if word_i[1] in relationship or word_i[1] in determiner:
+                continue
+            word = word_i[0] + '_{}'.format(sent_num)
+            G.add_edge(src_node, word)
+            G.add_edge(meta_node, word)
+            src_node = word
+
 
     def tokenize(self, txt_file, is_file=True):
         tokens = []
@@ -45,20 +75,9 @@ class GraphGenerator:
         print("Unk percentage:", n_unk/n_word)
         return tokens
 
-    def create_analysis_node(self, G):
-        G.add_node("ANALYSIS_NODE")
-        for n in G.nodes:
-            G.add_edge("ANALYSIS_NODE", n)
-        return G
-
 
     def word2id(self, word):
         return self.word2id_dict[word]
 
     def id2word(self, id):
         return self.id2word_dict[id]
-
-if __name__=="__main__":
-    emb, word2id_dict, id2word_dict  = load_embeddings()
-    gg = GraphGenerator("gita.txt", emb, word2id_dict, id2word_dict)
-    #gg.load_embeddings()
