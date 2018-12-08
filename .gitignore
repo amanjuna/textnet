@@ -1,3 +1,5 @@
 embeddings
 ._*
 data
+*.pyc
+*.ipynb
