@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 
 class HyperGraph:
     def __init__(self, node_vectors, percentile_threshold):
+        print("here")
         self.partition = {}
         embs = []
         node_names = []
@@ -32,7 +33,7 @@ class HyperGraph:
                 node_j = node_names[j]
                 if dist_matrix[i,j] > threshold:
                     G.add_edge(node_i, node_j, weight=dist_matrix[i,j])
-
+        print("here")
         #print(G.nodes)
         G.remove_nodes_from(list(nx.isolates(G)))
         self.graph = G
