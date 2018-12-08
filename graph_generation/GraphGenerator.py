@@ -23,7 +23,7 @@ class GraphGenerator:
         tokens = []
         n_unk, n_word = 0, 0
         if is_file:
-            with open(txt_file, 'r') as open_doc:
+            with open(txt_file, 'r', encoding="ISO-8859-1") as open_doc:
                 for line in open_doc:
                     for token in nltk.word_tokenize(line):
                         lower = token.lower()
@@ -34,15 +34,15 @@ class GraphGenerator:
                             tokens += ["UNK"]
                             n_unk += 1
         else:
-            for token in nltk.word_tokenize(txt_file):
-                lower = token.lower()
-                n_word += 1
-                if lower in self.word2id_dict:
-                    tokens += [lower]
-                else:
-                    tokens += ["UNK"]
-                    n_unk += 1
-        print("Unk percentage:", n_unk/n_word)
+            pass
+            #for token in nltk.word_tokenize(txt_file):
+            #    lower = token.lower()
+            #    n_word += 1
+            #    if lower in self.word2id_dict:
+            #        tokens += [lower]
+            #    else:
+            #        tokens += ["UNK"]
+            #        n_unk += 1
         return tokens
 
     def create_analysis_node(self, G):
