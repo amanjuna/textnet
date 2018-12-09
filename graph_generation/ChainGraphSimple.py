@@ -27,7 +27,6 @@ class ChainGraphSimple(GraphGenerator):
         break_inds = [i for i, word in enumerate(tagged) if word[0] in ['.','!','?']]
         G = nx.DiGraph()
         start_ind = 0
-        print(tagged)
         for i, ind in enumerate(break_inds):
             self.connect_sentence(tagged[start_ind:ind], G, i)
             start_ind = ind + 1
@@ -40,7 +39,7 @@ class ChainGraphSimple(GraphGenerator):
 
 
     def connect_sentence(self, sentence, G, sent_num):
-        # relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
+        relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
         determiner = set(['WDT', 'DT', 'PDT'])
         names = set(word[0] + "_{}".format(sent_num) for word in sentence \
                     if word[1] not in determiner)
@@ -49,11 +48,21 @@ class ChainGraphSimple(GraphGenerator):
         meta_node = "metanode_{}".format(sent_num) # Connects to all other words in sentence
         G.add_node(meta_node)
         self.num_meta += 1
+        rel = False
+        prev = src_node
         for word_i in sentence[1:]:
             if word_i[1] in determiner:
                 continue
             word = word_i[0] + '_{}'.format(sent_num)
             G.add_edge(src_node, word)
+            if word_i[1] in relationship:
+                rel = True
+            elif rel:
+                G.add_edge(prev, word)
+                rel = False
+            else:
+                prev = word
+
             G.add_edge(meta_node, word)
             src_node = word
 
