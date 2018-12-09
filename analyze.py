@@ -19,6 +19,7 @@ from utils import *
 from node2vec import Node2Vec
 from graph_generation.TextPOS import TextPOS as GraphGenerator
 import matplotlib.pyplot as plt
+import sklearn
 
 def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
     '''
@@ -62,6 +63,10 @@ def create_analysis_node(G):
     for n in G.nodes:
         G.add_edge("ANALYSIS_NODE", n)
     return G
+
+def get_score(ground_truth_labels, node_vecs, n_classes):
+    res = sklearn.cluster.KMeans(node_vecs, n_clusters = n_classes)
+    return sklearn.metrics.adjusted_mutual_info_score(res, ground_truth_labels)
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()
