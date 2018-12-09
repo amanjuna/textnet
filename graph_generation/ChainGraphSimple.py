@@ -16,9 +16,10 @@ from utils import *
 from GraphGenerator import GraphGenerator
 
 class ChainGraphSimple(GraphGenerator):
-    def __init__(self, txt_file, emb, word2id, id2word, is_file=True):
+    def __init__(self, txt_file, emb, word2id, id2word):
         self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
-        self.tokens = self.tokenize(txt_file, is_file)
+        self.tokens = self.tokenize(txt_file)
+        self.num_meta = 0
 
 
     def generate_graph(self):
@@ -34,7 +35,7 @@ class ChainGraphSimple(GraphGenerator):
                 prev_meta = 'metanode_{}'.format(i-1)
                 cur_meta = 'metanode_{}'.format(i)
                 G.add_edge(prev_meta, cur_meta)
-
+        self.connect_meta(G)
         return G
 
 
@@ -47,6 +48,7 @@ class ChainGraphSimple(GraphGenerator):
         src_node = sentence[0][0] + '_{}'.format(sent_num)
         meta_node = "metanode_{}".format(sent_num) # Connects to all other words in sentence
         G.add_node(meta_node)
+        self.num_meta += 1
         for word_i in sentence[1:]:
             if word_i[1] in determiner:
                 continue
@@ -56,41 +58,44 @@ class ChainGraphSimple(GraphGenerator):
             src_node = word
 
 
-    def tokenize(self, txt_file, is_file=True):
-        tokens = []
-        n_unk, n_word = 0, 0
-        if is_file:
-            with open(txt_file, 'r') as open_doc:
-                for line in open_doc:
-                    for token in nltk.word_tokenize(line):
-                        lower = token.lower()
-                        n_word += 1
-                        if lower in self.word2id_dict:
-                            tokens += [lower]
-                        else:
-                            tokens += ["UNK"]
-                            n_unk += 1
-        else:
-            for token in nltk.word_tokenize(txt_file):
-                lower = token.lower()
-                n_word += 1
-                if lower in self.word2id_dict:
-                    tokens += [lower]
-                else:
-                    tokens += ["UNK"]
-                    n_unk += 1
-        print("Unk percentage:", n_unk/n_word)
-        return tokens
+    def connect_meta(self, G):
+        '''
+        Connect the metanodes of sentences that have similarities (measured by dot product)
+        75th percentile or greater
+        '''
+        self.calc_sentence_meanings(G)
+        percentile = np.percentile(self.self_sim, 75)
+        for i in range(self.num_meta):
+            for j, sim in enumerate(self.self_sim[i,:]):
+                if i == j: continue
+                if sim >= percentile:
+                    G.add_edge("metanode_%d" % i, "metanode_%d" % j)
 
-    def word2id(self, word):
-        return self.word2id_dict[word]
 
-    def id2word(self, id):
-        return self.id2word_dict[id]
+    def calc_sentence_meanings(self, G):
+        '''
+        Approximate "sentence meaning" by averaging the word vectors of a sentence.
+        Reason that the mean normalizes by sentence length, since sentence length
+        can be approximated from sentence metanode degree
+        '''
+        self.meanings = np.zeros((self.num_meta, self.emb.shape[1]))
+        for i in range(self.num_meta):
+            meaning = np.zeros(self.emb.shape[1])
+            cur_sentence = 'metanode_{}'.format(i)
+            num_nbr_words = 0
+            for nbr in G.neighbors(cur_sentence):
+                if 'metanode_' in nbr: continue # skip metanode
+                word = nbr[:nbr.find('_')]
+                ind = self.word2id(word)
+                meaning += self.emb[ind]
+                num_nbr_words += 1
+            self.meanings[i] = meaning / num_nbr_words
+        self.self_sim = np.matmul(self.meanings, self.meanings.T)
+
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict = load_embeddings()
-    gen = ChainGraph("test.txt", emb, word2id_dict, id2word_dict)
+    gen = ChainGraphSimple("test.txt", emb, word2id_dict, id2word_dict)
     G = gen.generate_graph()
     nx.draw_networkx(G)
     plt.show()
