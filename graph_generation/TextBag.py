@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #from StyleGraph import StyleGraph
-from GraphGenerator import GraphGenerator
+from graph_generation.GraphGenerator import GraphGenerator
 from utils import *
 import networkx as nx
 import numpy as np

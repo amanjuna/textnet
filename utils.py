@@ -3,11 +3,11 @@
 import os, pickle
 import numpy as np
 
-EMBEDDINGS = "../embeddings/glove.6B.300d.txt"
+EMBEDDINGS = "embeddings/glove.6B.300d.txt"
 EMBEDDING_DIMS = (400001, 300)
 
 def load_embeddings(reload_emb=False):
-    emb_exists = os.path.isfile("../embeddings/emb.pickle")
+    emb_exists = os.path.isfile("embeddings/emb.pickle")
     if reload_emb or not emb_exists:
         print("Loading embeddings from scratch - will take a moment")
         word2id_dict, id2word_dict = {}, {}
@@ -24,8 +24,8 @@ def load_embeddings(reload_emb=False):
             word2id_dict["UNK"] = EMBEDDING_DIMS[0] - 1
             id2word_dict[EMBEDDING_DIMS[0] - 1] = "UNK"
 
-            pickle.dump([embeddings, word2id_dict, id2word_dict], open("../embeddings/emb.pickle", 'wb'))
+            pickle.dump([embeddings, word2id_dict, id2word_dict], open("embeddings/emb.pickle", 'wb'))
     else:
-        embeddings, word2id_dict, id2word_dict = pickle.load(open("../embeddings/emb.pickle", 'rb'))
+        embeddings, word2id_dict, id2word_dict = pickle.load(open("embeddings/emb.pickle", 'rb'))
     print("Embeddings loaded")
     return embeddings, word2id_dict, id2word_dict

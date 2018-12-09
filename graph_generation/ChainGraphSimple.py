@@ -13,7 +13,7 @@ import networkx as nx
 import nltk
 
 from utils import *
-from GraphGenerator import GraphGenerator
+from graph_generator.GraphGenerator import GraphGenerator
 
 class ChainGraphSimple(GraphGenerator):
     def __init__(self, txt_file, emb, word2id, id2word):

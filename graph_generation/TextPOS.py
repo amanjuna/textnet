@@ -12,7 +12,7 @@ class TextPOS(GraphGenerator):
         tagged = nltk.pos_tag(self.tokens)
         relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
         determiner = set(['WDT', 'DT', 'PDT'])
-        punctuation = set([',', '(', ')', '``', "''", ',', '<', '>'])
+        punctuation = set([',', '(', ')', '``', "''", ',', '<', '>', '@', '\\\\', '%', '`', '--'])
         names_list = [word for word in tagged if (word[1] not in determiner and word[1] != '.' and word[1] not in relationship
                                                   and word[0] != 'UNK' and word[0] not in punctuation)]  #Discard determiners/connectors
         node_names = set(names_list)

@@ -38,6 +38,7 @@ def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
     def get_centrality(graph):
         centrality = nx.eigenvector_centrality_numpy(graph)
         sorted_centrality = sorted(centrality.items(), key=lambda x:x[1], reverse=True)
+
         top_5_id = [word2id_dict[x[0][0]] for x in sorted_centrality[0:5]]
         centrality = np.mean(emb[top_5_id, :], axis=0)
         print([x[0][0] for x in sorted_centrality[0:5]])
@@ -46,17 +47,15 @@ def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
     # Node2Vec
     def get_node2vec(graph):
         graph = create_analysis_node(graph)
-        node2vec = Node2Vec(graph, workers=1, quiet=True)
+        node2vec = Node2Vec(graph, p=1, q=3, workers=1, quiet=True)
         model = node2vec.fit()
         node2vec = model.wv.get_vector('ANALYSIS_NODE')
         return node2vec
 
-    print(graph.nodes)
     #graph_stats = get_graph_stats()
     centrality = get_centrality(graph)
     node2vec = get_node2vec(graph)
-
-    return np.concatenate((centrality, node2vec))#, node2vec))
+    return np.concatenate((centrality, node2vec))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
