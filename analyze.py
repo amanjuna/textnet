@@ -19,9 +19,9 @@ from utils import *
 from node2vec import Node2Vec
 from graph_generation.TextPOS import TextPOS as GraphGenerator
 import matplotlib.pyplot as plt
-import sklearn
+import sklearn.cluster
 
-def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
+def gen_style_vec(graph, word2id_dict, emb, analysis, generator, n_samples=100):
     '''
     Given StyleGraph, return a style vector
     '''
@@ -37,26 +37,50 @@ def gen_style_vec(graph, word2id_dict, emb, n_samples=100):
 
     # Centrality
     def get_centrality(graph):
+        #centrality = nx.betweenness_centrality(graph)
         centrality = nx.eigenvector_centrality_numpy(graph)
+        #centrality = nx.harmonic_centrality(graph)
         sorted_centrality = sorted(centrality.items(), key=lambda x:x[1], reverse=True)
-
-        top_5_id = [word2id_dict[x[0][0]] for x in sorted_centrality[0:5]]
+        if generator == 'pos' or generator == 'chain':
+            sorted_centrality = [x for x in sorted_centrality if "metanode_" not in x[0][0]]
+            top_5_id = [word2id_dict[x[0][0]] for x in sorted_centrality[0:5]]
+        else:
+            top_5_id = [word2id_dict[x[0]] for x in sorted_centrality[0:5]]
         centrality = np.mean(emb[top_5_id, :], axis=0)
-        print([x[0][0] for x in sorted_centrality[0:5]])
+        return centrality
+
+    def get_random(graph):
+        #centrality = nx.betweenness_centrality(graph)
+        centrality = nx.eigenvector_centrality_numpy(graph)
+        #centrality = nx.harmonic_centrality(graph)
+        sorted_centrality = sorted(centrality.items(), key=lambda x:x[1], reverse=True)
+        if generator == "pos" or generator == 'chain':
+            sorted_centrality = [x for x in sorted_centrality if "metanode_" not in x[0]]
+            top_5_id = [word2id_dict[x[0][0]] for x in random.sample(sorted_centrality, 5)]
+        else:
+            top_5_id = [word2id_dict[x[0]] for x in random.sample(sorted_centrality, 5)]
+        centrality = np.mean(emb[top_5_id, :], axis=0)
         return centrality
 
     # Node2Vec
     def get_node2vec(graph):
         graph = create_analysis_node(graph)
-        node2vec = Node2Vec(graph, p=1, q=3, workers=1, quiet=True)
+        node2vec = Node2Vec(graph, p=1, q=3, workers=8, quiet=True)
         model = node2vec.fit()
         node2vec = model.wv.get_vector('ANALYSIS_NODE')
         return node2vec
 
     #graph_stats = get_graph_stats()
-    centrality = get_centrality(graph)
-    node2vec = get_node2vec(graph)
-    return np.concatenate((centrality, node2vec))
+    if analysis == "c":
+        return get_centrality(graph)
+    if analysis == "n":
+        return get_node2vec(graph)
+    if analysis == 'r':
+        return get_random(graph)
+    if analysis == 'cr':
+        centrality = get_centrality(graph)
+        node2vec = get_node2vec(graph)
+        return np.concatenate((centrality, node2vec))
 
 def create_analysis_node(G):
     G.add_node("ANALYSIS_NODE")
@@ -65,8 +89,15 @@ def create_analysis_node(G):
     return G
 
 def get_score(ground_truth_labels, node_vecs, n_classes):
-    res = sklearn.cluster.KMeans(node_vecs, n_clusters = n_classes)
-    return sklearn.metrics.adjusted_mutual_info_score(res, ground_truth_labels)
+    res = sklearn.cluster.KMeans(n_clusters = n_classes, n_init=100).fit(node_vecs)
+
+    precision = max(sklearn.metrics.precision_score(ground_truth_labels, res.labels_), sklearn.metrics.precision_score([x == 0 for x in ground_truth_labels], res.labels_))
+    recall = max(sklearn.metrics.recall_score(ground_truth_labels, res.labels_), sklearn.metrics.recall_score([x == 0 for x in ground_truth_labels], res.labels_))
+
+    #print(sklearn.metrics.precision_score(ground_truth_labels, res.labels_), sklearn.metrics.recall_score(ground_truth_labels, res.labels_))
+    metric1 = sum([x == ground_truth_labels[i] for i, x in enumerate(res.labels_)])/len(ground_truth_labels)
+    metric2 = sum([x != ground_truth_labels[i] for i, x in enumerate(res.labels_)])/len(ground_truth_labels)
+    return max(metric1, metric2), precision, recall#sklearn.metrics.adjusted_mutual_info_score(res.labels_, ground_truth_labels)
 
 if __name__=="__main__":
     emb, word2id_dict, id2word_dict  = load_embeddings()

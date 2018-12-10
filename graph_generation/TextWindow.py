@@ -13,7 +13,7 @@ class TextWindow(GraphGenerator):
         if "UNK" in node_names: node_names.remove("UNK")
         G = nx.Graph()
         for node in node_names: G.add_node(node)
-
+        self.tokens = [x for x in self.tokens if x != "UNK"]
         for i in range(len(self.tokens) - 1):
             start = self.tokens[i]
             end = self.tokens[i + 1]

@@ -13,19 +13,19 @@ import networkx as nx
 import nltk
 
 from utils import *
-from graph_generator.GraphGenerator import GraphGenerator
+from graph_generation.GraphGenerator import GraphGenerator
 
 class ChainGraphSimple(GraphGenerator):
-    def __init__(self, txt_file, emb, word2id, id2word):
+    def __init__(self, txt_file, emb, word2id, id2word, is_file=True):
         self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
-        self.tokens = self.tokenize(txt_file)
+        self.tokens = self.tokenize(txt_file, is_file)
         self.num_meta = 0
 
 
     def generate_graph(self):
         tagged = nltk.pos_tag(self.tokens)
         break_inds = [i for i, word in enumerate(tagged) if word[0] in ['.','!','?']]
-        G = nx.DiGraph()
+        G = nx.Graph()
         start_ind = 0
         for i, ind in enumerate(break_inds):
             self.connect_sentence(tagged[start_ind:ind], G, i)
@@ -41,19 +41,24 @@ class ChainGraphSimple(GraphGenerator):
     def connect_sentence(self, sentence, G, sent_num):
         relationship = set(['VB', 'VBD', 'VBN', 'VBP', 'VBZ', 'IN', 'CC']) #ADP is 'adposition'
         determiner = set(['WDT', 'DT', 'PDT'])
-        names = set(word[0] + "_{}".format(sent_num) for word in sentence \
-                    if word[1] not in determiner)
-        for name in names: G.add_node(name)
-        src_node = sentence[0][0] + '_{}'.format(sent_num)
+        punctuation = set([',', '(', ')', '``', "''", ',', '<', '>', '@', '\\\\', '%', '`', '--'])
+
+        names = [word for word in sentence \
+                    if (word[1] not in determiner and word[0] != 'UNK' and word[0] not in punctuation)]
+        for name in names:            
+#print(name)
+            G.add_node(name)
+        if len(sentence) == 0: return
+        src_node = sentence[0] #+ '_{}'.format(sent_num)
         meta_node = "metanode_{}".format(sent_num) # Connects to all other words in sentence
         G.add_node(meta_node)
         self.num_meta += 1
         rel = False
         prev = src_node
-        for word_i in sentence[1:]:
+        for word_i in names[1:]:
             if word_i[1] in determiner:
                 continue
-            word = word_i[0] + '_{}'.format(sent_num)
+            word = word_i
             G.add_edge(src_node, word)
             if word_i[1] in relationship:
                 rel = True
@@ -94,7 +99,7 @@ class ChainGraphSimple(GraphGenerator):
             num_nbr_words = 0
             for nbr in G.neighbors(cur_sentence):
                 if 'metanode_' in nbr: continue # skip metanode
-                word = nbr[:nbr.find('_')]
+                word = nbr[0]
                 ind = self.word2id(word)
                 meaning += self.emb[ind]
                 num_nbr_words += 1

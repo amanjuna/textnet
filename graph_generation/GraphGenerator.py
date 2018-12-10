@@ -14,7 +14,7 @@ import networkx as nx
 class GraphGenerator:
     def __init__(self, txt_file, emb, word2id, id2word, is_file=True):
         self.emb, self.word2id_dict, self.id2word_dict = emb, word2id, id2word
-        self.tokens = self.tokenize(txt_file)
+        self.tokens = self.tokenize(txt_file, is_file)
 
     def generate_graph(self):
         raise NotImplementedError("generate_graph() must be implemented by a child class of GraphGenerator")
@@ -22,8 +22,19 @@ class GraphGenerator:
     def tokenize(self, txt_file, is_file=True):
         tokens = []
         n_unk, n_word = 0, 0
-        with open(txt_file, 'r', encoding="ISO-8859-1") as open_doc:
-            for line in open_doc:
+        if is_file:
+            with open(txt_file, 'r', encoding="ISO-8859-1") as open_doc:
+                for line in open_doc:
+                    for token in nltk.word_tokenize(line):
+                        lower = token.lower()
+                        n_word += 1
+                        if lower in self.word2id_dict:
+                            tokens += [lower]
+                        else:
+                            tokens += ["UNK"]
+                            n_unk += 1
+        else:
+            for line in txt_file:
                 for token in nltk.word_tokenize(line):
                     lower = token.lower()
                     n_word += 1
