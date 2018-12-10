@@ -5,9 +5,9 @@ Kiko Ilagan, Anoop Manjunath, Vikram Pattabi
 
 ### What is this repository for? ###
 
-This repo contains all of the code used as part of our CS224W project
-Unsupervised Document Clustering by Authorial Style through Network-Based
-Semantic and Syntactic Features
+This repo contains all of the code used as part of our CS224W project titled 
+"Unsupervised Document Clustering by Authorial Style through Network-Based
+Semantic and Syntactic Features"
 
 # Data
 Folder containing the text data used to generate our style/text graphs. 
@@ -61,7 +61,7 @@ speeches with less than 400 unique tokens in the presidential speeches dataset
 Performs large scale analysis of graph and style vector generator performance on all
 speeches in the presidential speeches dataset
 
-# References
+# Dataset References
 Brown, D. W. (2016) Corpus of Presidential Speeches. Retrieved from http://www.thegrammarlab.com
 
 Yanchuan Sim, Brice Acree, Justin Gross, and Noah Smith. Measuring Ideological Proportions in Political Speeches.Empirical Methods in Natural Language Processing, 2013.
