@@ -60,3 +60,9 @@ speeches with less than 400 unique tokens in the presidential speeches dataset
 # presidential_analysis_full.py
 Performs large scale analysis of graph and style vector generator performance on all
 speeches in the presidential speeches dataset
+
+# References
+Brown, D. W. (2016) Corpus of Presidential Speeches. Retrieved from http://www.thegrammarlab.com
+
+Yanchuan Sim, Brice Acree, Justin Gross, and Noah Smith. Measuring Ideological Proportions in Political Speeches.Empirical Methods in Natural Language Processing, 2013.
+
